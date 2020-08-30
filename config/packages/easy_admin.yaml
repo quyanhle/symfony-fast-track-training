@@ -1,0 +1,17 @@
+easy_admin:
+    site_name: Conference Guestbook
+
+    design:
+        menu:
+            - { route: 'homepage', label: 'Back to the website', icon: 'home' }
+            - { entity: 'Conference', label: 'Conferences', icon: 'map-marker' }
+            - { entity: 'Comment', label: 'Comments', icon: 'comments' }
+
+    entities:
+        Conference:
+            class: App\Entity\Conference
+
+        Comment:
+            class: App\Entity\Comment
+            list:
+                filters: ['conference']
