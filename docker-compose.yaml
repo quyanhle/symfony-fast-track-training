@@ -1,0 +1,55 @@
+version: '3'
+
+services:
+    symfony-training-web:
+        image: nginx:alpine
+        container_name: symfony-training-webserver
+        working_dir: /application
+        volumes:
+            - ./:/application/symfony
+            - ./docker/conf/nginx/nginx.conf:/etc/nginx/nginx.conf
+            - ./docker/conf/nginx/sites:/etc/nginx/sites-enabled
+        ports:
+            - "8080:80"
+        links:
+            - symfony-training-php-fpm:symfony-training-php-fpm
+
+    symfony-training-php-fpm:
+        build: ./docker/build/php-fpm
+        container_name: symfony-training-php-fpm
+        working_dir: /application
+        volumes:
+            - ./:/application/symfony
+            - ./docker/conf/php/php-ini-overrides.ini:/etc/php/7.4/fpm/conf.d/99-overrides.ini
+            - ./docker/conf/php/php-ini-overrides.ini:/etc/php/7.4/cli/conf.d/99-overrides.ini
+        links:
+            - database:database
+            - redis:redis
+            - rabbitmq:rabbitmq
+            - mailcatcher:mailcatcher
+            - blackfire:blackfire
+
+    database:
+        image: postgres:11-alpine
+        environment:
+            POSTGRES_USER: admin
+            POSTGRES_PASSWORD: admin
+            POSTGRES_DB: symfony-book
+        ports: [5432]
+
+    redis:
+        image: redis:5-alpine
+        ports: [6379]
+
+    rabbitmq:
+        image: rabbitmq:3.7-management
+        ports: [5672, 15672]
+
+    mailcatcher:
+        image: schickling/mailcatcher
+        ports: [1025, 1080]
+
+    blackfire:
+        image: blackfire/blackfire
+        env_file: ./.env.local
+        ports: [8707]
